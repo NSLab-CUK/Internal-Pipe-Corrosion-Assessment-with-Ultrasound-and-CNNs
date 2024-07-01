@@ -6,16 +6,42 @@ import seaborn as sn
 import os
 from tqdm import tqdm
 
+
+# def plot_confusion_matrix(cf_matrix):
+#     classes = [
+#         "15mg/1L",
+#         # "15mg/50mL",
+#         "1mg/1L",
+#         # "1mg/50mL",
+#         "5mg/1L",
+#         # "5mg/50mL",
+#     ]
+#     # classes = [
+#     #     "Control Group",
+#     #     "Hypoglycemia",
+#     #     "Normal",
+#     #     "Impaired fasting glucose",
+#     #     "Diabetes mellitus",
+#     # ]
+#     dpi_val = 68.84
+#     plt.figure(figsize=(1024 / dpi_val, 768 / dpi_val), dpi=dpi_val)
+#
+#     sn.set_context(font_scale=1)
+#     df_cm = pd.DataFrame(
+#         cf_matrix / np.sum(cf_matrix, axis=1)[:, None], index=classes, columns=classes
+#     )
+#
+#     return sn.heatmap(df_cm, annot=False).get_figure()
+
 def plot_confusion_matrix(cf_matrix):
     classes = [
-        "0_output",
-        "50_output",
-        "100_output",
-        "150_output",
-        "200_output",
-        "250_output",
+        # "15mg/1L",
+        # "1mg/1L",
+        # "5mg/1L",
+        "15mg/50mL",
+        "1mg/50mL",
+        "5mg/50mL",
     ]
-
     # classes = [
     #     "Control Group",
     #     "Hypoglycemia",
@@ -23,12 +49,6 @@ def plot_confusion_matrix(cf_matrix):
     #     "Impaired fasting glucose",
     #     "Diabetes mellitus",
     # ]
-    # classes=[]
-    # data_path = "./data/data_specto/JL_230829_ML6"
-    # clss = os.listdir(data_path)
-    # for cls in clss:
-    #     classes.append(cls)
-
     dpi_val = 68.84
     plt.figure(figsize=(1024 / dpi_val, 768 / dpi_val), dpi=dpi_val)
     sn.set_context(font_scale=1)
@@ -37,65 +57,42 @@ def plot_confusion_matrix(cf_matrix):
         cm_numpy / np.sum(cm_numpy, axis=1)[:, np.newaxis],
         index=classes,
         columns=classes,
-    )
-    
-    return sn.heatmap(df_cm, annot=True, fmt=".2f", cmap="Blues", annot_kws={"size": 10}, cbar=True)
+        )
+
+    return sn.heatmap(df_cm, annot=True, fmt=".2f", cmap="Blues", annot_kws={"size": 20}, cbar=True)
 
 
 def get_data_list(data_path):
     data_name_list = []
     y = []
     data_path_list = []
-    # data_path = "./data/data_specto/JL_230829_ML6"
+    data_path = "./data/specto"
     clss = os.listdir(data_path)
     for cls in clss:
         print(f"class {clss.index(cls)} : {cls}")
-        labels = os.listdir(f"{data_path}/{cls}")
-        # print(cls)
-        for data_name in os.listdir(f"{data_path}/{cls}"):
-            data_name_list.append(data_name)
-            data_path_list.append(f"{data_path}/{cls}/{data_name}")
-
-            y.append(clss.index(cls))
+        labels = os.listdir(f"./data/specto/{cls}")
+        for label in labels:
+            for data_name in os.listdir(f"./data/specto/{cls}/{label}"):
+                if data_name == "Unnamed":
+                    continue
+                data_name_list.append(data_name)
+                data_path_list.append(f"./data/specto/{cls}/{label}/{data_name}")
+                y.append(clss.index(cls))
     print(f"find {len(data_name_list)} files")
     return [data_name_list, data_path_list, y]
 
 
 if __name__ == "__main__":
     classes = [
-        "0mg/dL",
-        "50mg/dL",
-        "60mg/dL",
-        "70mg/dL",
-        "75mg/dL",
-        "80mg/dL",
-        "85mg/dL",
-        "90mg/dL",
-        "95mg/dL",
-        "100mg/dL",
-        "105mg/dL",
-        "110mg/dL",
-        "115mg/dL",
-        "120mg/dL",
-        "125mg/dL",
-        "130mg/dL",
-        "135mg/dL",
-        "140mg/dL",
-        "145mg/dL",
-        "150mg/dL",
-        "160mg/dL",
-        "170mg/dL",
-        "180mg/dL",
-        "190mg/dL",
-        "200mg/dL",
-        "210mg/dL",
-        "220mg/dL",
-        "230mg/dL",
-        "240mg/dL",
-        "250mg/dL",
+        "1mg/50mL",
+        "5mg/50mL",
+        "15mg_50mL",
+        # "1mg/1L",
+        # "5mg/1L",
+        # "15mg/1L",
     ]
-    folder_path = ".\\fail\\alexnet66b64s6(10.24)\\confusion_matrix"
-    save_folder_path = ".\\fail\\alexnet66b64s6(10.24)\\confusion_matrix_remake"
+    folder_path = "./output_inceptionnet/inceptionnet33_50ml/confusion_matrix"
+    save_folder_path = "./output_inceptionnet/inceptionnet33_50ml/confusion_matrix_remake"
 
     if not os.path.exists(save_folder_path):
         os.makedirs(save_folder_path)
@@ -122,8 +119,7 @@ if __name__ == "__main__":
             columns=classes,
         )
         # Heatmap 그리기
-        cax = sn.heatmap(df_cm, annot=True, fmt=".2f", cmap="Blues", annot_kws={"size": 10},
-                         cbar=True)  # heatmap의 숫자 글자 크기 조절
+        cax = sn.heatmap(df_cm, annot=True, fmt=".2f", cmap="Blues", annot_kws={"size": 20}, cbar=True)  # heatmap의 숫자 글자 크기 조절
 
         # 컬러바 객체 얻기
         cbar = cax.collections[0].colorbar
@@ -131,13 +127,15 @@ if __name__ == "__main__":
         # 컬러바 눈금 라벨의 글자 크기 설정
         cbar.ax.tick_params(labelsize=18)
 
-        plt.xticks(fontsize=18)  # x축 틱 레이블의 글자 크기를 14로 설정
-        plt.yticks(fontsize=18)  # y축 틱 레이블의 글자 크기를 14로 설정
+        plt.xticks(fontsize=18)   # x축 틱 레이블의 글자 크기를 14로 설정
+        plt.yticks(fontsize=18)   # y축 틱 레이블의 글자 크기를 14로 설정
+
 
         plt.xlabel("Predicted labels", labelpad=20, fontsize=25)
         plt.ylabel("True labels", labelpad=20, fontsize=25)
         # plt.title("Confusion Matrix", fontsize=16)   # 제목 글자 크기 조절
         plt.tight_layout()
+
 
         save_path = os.path.join(save_folder_path, file.replace(".pth", ".png"))
         plt.savefig(save_path)

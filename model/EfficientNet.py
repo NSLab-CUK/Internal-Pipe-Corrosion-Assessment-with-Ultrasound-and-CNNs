@@ -1,12 +1,10 @@
 import torch
 import torch.nn as nn
 
-
 # Swish activation function
 class Swish(nn.Module):
     def forward(self, x):
         return x * torch.sigmoid(x)
-
 
 # Squeeze-and-excitation module
 class SEBlock(nn.Module):
@@ -19,7 +17,6 @@ class SEBlock(nn.Module):
         se_tensor = torch.nn.functional.adaptive_avg_pool2d(x, (1, 1))
         se_tensor = self.se_expand(torch.relu(self.se_reduce(se_tensor)))
         return torch.sigmoid(se_tensor) * x
-
 
 # Mobile inverted bottleneck block (MBConv)
 class MBConv(nn.Module):
@@ -36,16 +33,13 @@ class MBConv(nn.Module):
             layers += [
                 nn.Conv2d(in_channels, hidden_dim, kernel_size=1, stride=1, padding=0, bias=False),
                 nn.BatchNorm2d(hidden_dim),
-                Swish(),
-                # LeakyReLU()
+                Swish()
             ]
         # Depthwise convolution phase
         layers += [
-            nn.Conv2d(hidden_dim, hidden_dim, kernel_size, stride, padding=kernel_size // 2, groups=hidden_dim,
-                      bias=False),
+            nn.Conv2d(hidden_dim, hidden_dim, kernel_size, stride, padding=kernel_size // 2, groups=hidden_dim, bias=False),
             nn.BatchNorm2d(hidden_dim),
-            Swish(),
-            # LeakyReLU()
+            Swish()
         ]
         # Squeeze-and-excitation phase
         layers += [SEBlock(hidden_dim, se_ratio)]
@@ -56,44 +50,23 @@ class MBConv(nn.Module):
         ]
         self.block = nn.Sequential(*layers)
 
-        # Xavier initialization
-        for m in self.block.modules():
-            if isinstance(m, nn.Conv2d):
-                nn.init.xavier_uniform_(m.weight)
-
     def forward(self, x):
         if self.use_res_connect:
-            return x + self.block(x)
-        return self.block(x)
-
-
-# Swish 대신 LeakyReLU 사용
-class LeakyReLU(nn.Module):
-    def forward(self, x):
-        return nn.functional.leaky_relu(x, negative_slope=0.01)
-
+            out = x + self.block(x)
+        else:
+            out = self.block(x)
+        print(f"After MBConv block : ", 'x'.join(map(str, out.shape[1:])))
+        return out
 
 # EfficientNet model
 class EfficientNet(nn.Module):
-    # # 가중치 초기화
-    # def initialize_weights(self, m):
-    #     if isinstance(m, nn.Conv2d) or isinstance(m, nn.Linear):
-    #         nn.init.kaiming_normal_(m.weight, mode='fan_out', nonlinearity='relu')
-    #         if m.bias is not None:
-    #             nn.init.constant_
     def __init__(self, num_class=30):
         super(EfficientNet, self).__init__()
         self.stem = nn.Sequential(
             nn.Conv2d(1, 32, kernel_size=3, stride=2, padding=1, bias=False),
             nn.BatchNorm2d(32),
-            Swish(),
-            # LeakyReLU()
+            Swish()
         )
-        self.dropout = nn.Dropout(p=0.6)  # Dropout 추가
-        # Xavier initialization
-        nn.init.xavier_uniform_(self.stem[0].weight)
-
-
         # Define MBConv blocks
         self.blocks = nn.Sequential(
             MBConv(32, 16, 3, 1, 1, 4),
@@ -115,35 +88,40 @@ class EfficientNet(nn.Module):
             nn.Conv2d(320, 1280, kernel_size=1, stride=1, padding=0, bias=False),
             nn.BatchNorm2d(1280),
             Swish(),
-            # LeakyReLU(),
             nn.AdaptiveAvgPool2d(1),
             nn.Flatten(),
-            # nn.Dropout(0.5),
+            nn.Dropout(0.2),
             nn.Linear(1280, num_class)
         )
-        # # Xavier initialization
-        # nn.init.xavier_uniform_(self.head[0].weight)
-        # nn.init.xavier_uniform_(self.head[6].weight)
-        # Apply weight initialization
-        self.apply(self.initialize_weights)
+
+        self.conv_head = nn.Conv2d(320, 1280, kernel_size=1, stride=1, padding=0, bias=False)
+        self.bn_head = nn.BatchNorm2d(1280)
+        self.swish_head = Swish()
+        self.avgpool_head = nn.AdaptiveAvgPool2d(1)
+        self.flatten_head = nn.Flatten()
+        self.dropout_head = nn.Dropout(0.2)
+        self.linear_head = nn.Linear(1280, num_class)
 
     def forward(self, x):
         x = self.stem(x)
+        print("After stem: ", 'x'.join(map(str, x.shape[1:])))
         x = self.blocks(x)
-        x = self.dropout(x)  # Dropout 적용
-        x = self.head(x)
+        # x = self.head(x)
+        x = self.conv_head(x)
+        print("After conv_head: ", 'x'.join(map(str, x.shape[1:])))
+        x = self.bn_head(x)
+        print("After bn_head: ", 'x'.join(map(str, x.shape[1:])))
+        x = self.swish_head(x)
+        print("After swish_head: ", 'x'.join(map(str, x.shape[1:])))
+        x = self.avgpool_head(x)
+        print("After avgpool_head: ", 'x'.join(map(str, x.shape[1:])))
+        x = self.flatten_head(x)
+        print("After flatten_head: ", 'x'.join(map(str, x.shape[1:])))
+        x = self.dropout_head(x)
+        print("After dropout_head: ", 'x'.join(map(str, x.shape[1:])))
+        x = self.linear_head(x)
+        print("After linear_head: ", 'x'.join(map(str, x.shape[1:])))
         return x
-
-    def initialize_weights(self, m):
-        if isinstance(m, nn.Conv2d):
-            nn.init.xavier_uniform_(m.weight)
-            if m.bias is not None:
-                nn.init.constant_(m.bias, 0)
-        elif isinstance(m, nn.Linear):
-            nn.init.xavier_uniform_(m.weight)
-            if m.bias is not None:
-                nn.init.constant_(m.bias, 0)
-
 
 # Create EfficientNet model
 # model = EfficientNet()

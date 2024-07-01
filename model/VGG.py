@@ -10,10 +10,10 @@ class VGG(nn.Module):
             nn.Conv2d(
                 in_channels=1, out_channels=16, kernel_size=(3, 3), padding="same"
             ),
-            nn.BatchNorm2d(16) ,
+            nn.BatchNorm2d(16),
             nn.ReLU(),
             nn.MaxPool2d(2),
-            # nn.Dropout(0.5)
+            # nn.Dropout(0.2)
         )
 
         self.layer2 = nn.Sequential(
@@ -31,7 +31,7 @@ class VGG(nn.Module):
             nn.BatchNorm2d(64),
             nn.ReLU(),
             nn.MaxPool2d(2),
-            # nn.Dropout(0.5)
+            # nn.Dropout(0.2)
         )
 
         self.layer4 = nn.Sequential(
@@ -49,7 +49,7 @@ class VGG(nn.Module):
             nn.BatchNorm2d(128),
             nn.ReLU(),
             nn.MaxPool2d(2),
-            # nn.Dropout(0.5)
+            # nn.Dropout(0.2)
         )
 
         self.layer6 = nn.Sequential(
@@ -67,7 +67,7 @@ class VGG(nn.Module):
             nn.BatchNorm2d(512),
             nn.ReLU(),
             nn.MaxPool2d(2),
-            # nn.Dropout(0.5)
+            # nn.Dropout(0.2)
         )
 
         self.layer8 = nn.Sequential(
@@ -78,9 +78,9 @@ class VGG(nn.Module):
             nn.ReLU(),
         )
 
-        self.drop = nn.Dropout(0.5)
+        self.drop = nn.Dropout(0.2)
 
-        self.linear1 = nn.Linear(32768, 256)
+        self.linear1 = nn.Linear(1376256, 256)
         self.linear2 = nn.Linear(256, 128)
         self.linear3 = nn.Linear(128, 64)
         self.linear4 = nn.Linear(64, num_class)
@@ -130,3 +130,16 @@ class VGG(nn.Module):
 
 ##########################################################################################
 
+
+if __name__ == "__main__":
+    from pprint import PrettyPrinter
+
+    pp = PrettyPrinter()
+
+    model = ResNet(ResidualBlock, [3, 4, 6, 9])
+
+    model = nn.DataParallel(model, device_ids=[0])
+
+    model.load_state_dict(
+        torch.load("./output/resnet_fold1_batch64_lr5e-06_sampleall4_acc0.89.ckpt")
+    )
