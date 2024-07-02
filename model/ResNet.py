@@ -9,15 +9,14 @@ class ResNet(nn.Module):
         self.conv1 = nn.Sequential(
             nn.Conv2d(1, 64, kernel_size=7, stride=2, padding=3),  # in_channel 3에서 1로 수정
             nn.BatchNorm2d(64),
-            nn.ReLU()
-        )
+            nn.ReLU())
         self.maxpool = nn.MaxPool2d(kernel_size=3, stride=2, padding=1)
         self.layer0 = self._make_layer(block, 64, layers[0], stride=1)
         self.layer1 = self._make_layer(block, 128, layers[1], stride=2)
         self.layer2 = self._make_layer(block, 256, layers[2], stride=2)
         self.layer3 = self._make_layer(block, 512, layers[3], stride=2)
         self.avgpool = nn.AvgPool2d(3)
-        self.fc = nn.Linear(2560, num_class)
+        self.fc = nn.Linear(35840, num_class)
 
     def _make_layer(self, block, planes, blocks, stride=1):
         downsample = None
@@ -36,17 +35,34 @@ class ResNet(nn.Module):
 
     def forward(self, x):
         x = self.conv1(x)
+        print("After conv1: ", x.shape)
+
         x = self.maxpool(x)
+        print("After maxpool: ", x.shape)
+
         x = self.layer0(x)
+        print("After layer0: ", x.shape)
+
         x = self.layer1(x)
+        print("After layer1: ", x.shape)
+
         x = self.layer2(x)
+        print("After layer2: ", x.shape)
+
         x = self.layer3(x)
+        print("After layer3: ", x.shape)
 
         x = self.avgpool(x)
+        print("After avgpool: ", x.shape)
+
         x = x.view(x.size(0), -1)
+        print("After view: ", x.shape)
+
         x = self.fc(x)
+        print("After fc: ", x.shape)
 
         return x
+
 
 
 class ResidualBlock(nn.Module):
@@ -55,12 +71,10 @@ class ResidualBlock(nn.Module):
         self.conv1 = nn.Sequential(
             nn.Conv2d(in_channels, out_channels, kernel_size=3, stride=stride, padding=1),
             nn.BatchNorm2d(out_channels),
-            nn.ReLU()
-        )
+            nn.ReLU())
         self.conv2 = nn.Sequential(
             nn.Conv2d(out_channels, out_channels, kernel_size=3, stride=1, padding=1),
-            nn.BatchNorm2d(out_channels)
-        )
+            nn.BatchNorm2d(out_channels))
         self.downsample = downsample
         self.relu = nn.ReLU()
         self.out_channels = out_channels

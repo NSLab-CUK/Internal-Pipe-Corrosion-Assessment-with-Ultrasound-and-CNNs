@@ -4,19 +4,75 @@ This study introduces a dual-mode methodology for quantifying pipe corrosion by 
 
 ## Overview
 
-#### Components
+This project focuses on assessing internal pipe corrosion using ultrasound and Convolutional Neural Networks (CNNs). It includes components for data handling, model development, preprocessing, and utility functions.
 
--   **Data Handling**: `data.py` includes functions for loading datasets.
--   **EDA**: `EDA/plot.py` for data visualization.
--   **Models**: Various CNN architectures in the `model` directory.
--   **Preprocessing**: Scripts in `preprocess` folder for data preparation.
--   **Utilities**: Functions in `utils.py` for common tasks.
--   **Results**: TensorBoard logs are stored in the `result` directory.
+### Components
 
-#### Usage
+-   **Data Handling**:
 
--   Execute `main.py` to run main project functionalities.
--   Use functions from `utils.py` for additional tasks.
--   Data loading functions are implemented in `data.py`.
+    -   `data.py`: Functions for loading datasets.
 
-This README provides a concise overview of the project structure and its key components.
+-   **Model Development**:
+
+    -   `model/`: Directory containing various CNN architectures:
+        -   `AlexNet.py`
+        -   `DenseNet.py`
+        -   `EfficientNet.py`
+        -   `InceptionNet.py`
+        -   `ResNet.py`
+        -   `VGG.py`
+        -   `__pycache__/`: Cached Python bytecode files.
+
+-   **Preprocessing**:
+
+    -   `preprocess.py`: Implementation code for data preprocessing.
+    -   `preprocess_fn.py`: Functions required for preprocessing.
+
+-   **Execution Scripts**:
+    -   `run_experiment.py`: Main execution script.
+    -   `training.py`: Contains classes and functions related to training.
+    -   `utils.py`: Collection of utility functions.
+-   **Output and Results**:
+    -   `confusion_matrix.zip`, `output.hwp`, `plot.zip`, `vgg_loss_plot.zip`: Output files and archives related to results and plots.
+    -   `draw_acc-lossplot.py`: Script for plotting accuracy and loss.
+
+### Usage
+
+-   Run `run_experiment.py` to execute the main functionalities of the project.
+-   The `model/` directory contains implementations of different CNN architectures.
+
+## Result
+
+### graph
+
+![alt text](6class.png)
+![alt text](3class_1L.png)
+![alt text](3class_50ml.png)
+
+### confusion_matrix
+
+#### effcientNet
+
+-   [1L(3class)](./confusion_matrix/output_efficentnet/33_1L)
+-   [50ml(3class)](./confusion_matrix/output_efficentnet/33_50ml)
+-   [6class](./confusion_matrix/output_efficentnet/66)
+
+#### InceptionNet
+
+-   [1L(3class)](./confusion_matrix/output_inceptionnet/33_1L)
+-   [50ml(3class)](./confusion_matrix/output_inceptionnet/33_50ml)
+-   [6class](./confusion_matrix/output_inceptionnet/66)
+
+#### VGGNet
+
+-   [1L(3class)](./confusion_matrix/output_vgg/33_1L)
+-   [50ml(3class)](./confusion_matrix/output_vgg/33_50ml)
+-   [6class](./confusion_matrix/output_vgg/66)
+
+#### ResNet
+
+-   [1L(3class)](./confusion_matrix/output_resnet/33_1L)
+-   [50ml(3class)](./confusion_matrix/output_resnet/33_50ml)
+-   [6class](./confusion_matrix/output_resnet/66)
+
+This README provides a structured overview of the project, highlighting key components and their functionalities for assessing internal pipe corrosion using ultrasound and CNNs.

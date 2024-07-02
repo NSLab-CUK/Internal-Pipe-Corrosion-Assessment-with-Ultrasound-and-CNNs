@@ -12,12 +12,7 @@ def print_directory_contents(path, indent=""):
         full_path = os.path.join(path, item)
         # 만약 현재 아이템이 폴더라면 재귀적으로 호출하여 하위 폴더와 파일을 출력합니다.
         if os.path.isdir(full_path):
-            if (
-                item == "result"
-                or item == "old"
-                or item == ".git"
-                or item == "__pycache__"
-            ):
+            if item == "output" or item == ".git":
                 continue  # "result" 폴더나 "old" 폴더는 건너뜁니다.
             print(indent + "Folder:", item)
             print_directory_contents(

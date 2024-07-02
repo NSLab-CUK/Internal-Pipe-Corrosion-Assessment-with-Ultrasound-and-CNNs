@@ -101,59 +101,77 @@ class Inception3(nn.Module):
         return x
 
     def _forward(self, x: Tensor) -> Tuple[Tensor, Optional[Tensor]]:
-        # N x 3 x 299 x 299
         x = self.Conv2d_1a_3x3(x)
-        # N x 32 x 149 x 149
+        print("After Conv2d_1a_3x3: ", x.shape)
+
         x = self.Conv2d_2a_3x3(x)
-        # N x 32 x 147 x 147
+        print("After Conv2d_2a_3x3: ", x.shape)
+
         x = self.Conv2d_2b_3x3(x)
-        # N x 64 x 147 x 147
+        print("After Conv2d_2b_3x3: ", x.shape)
+
         x = self.maxpool1(x)
-        # N x 64 x 73 x 73
+        print("After maxpool1: ", x.shape)
+
         x = self.Conv2d_3b_1x1(x)
-        # N x 80 x 73 x 73
+        print("After Conv2d_3b_1x1: ", x.shape)
+
         x = self.Conv2d_4a_3x3(x)
-        # N x 192 x 71 x 71
+        print("After Conv2d_4a_3x3: ", x.shape)
+
         x = self.maxpool2(x)
-        # N x 192 x 35 x 35
+        print("After maxpool2: ", x.shape)
+
         x = self.Mixed_5b(x)
-        # N x 256 x 35 x 35
+        print("After Mixed_5b: ", x.shape)
+
         x = self.Mixed_5c(x)
-        # N x 288 x 35 x 35
+        print("After Mixed_5c: ", x.shape)
+
         x = self.Mixed_5d(x)
-        # N x 288 x 35 x 35
+        print("After Mixed_5d: ", x.shape)
+
         x = self.Mixed_6a(x)
-        # N x 768 x 17 x 17
+        print("After Mixed_6a: ", x.shape)
+
         x = self.Mixed_6b(x)
-        # N x 768 x 17 x 17
+        print("After Mixed_6b: ", x.shape)
+
         x = self.Mixed_6c(x)
-        # N x 768 x 17 x 17
+        print("After Mixed_6c: ", x.shape)
+
         x = self.Mixed_6d(x)
-        # N x 768 x 17 x 17
+        print("After Mixed_6d: ", x.shape)
+
         x = self.Mixed_6e(x)
-        # N x 768 x 17 x 17
+        print("After Mixed_6e: ", x.shape)
+
         aux: Optional[Tensor] = None
         if self.AuxLogits is not None:
             if self.training:
                 aux = self.AuxLogits(x)
-        # N x 768 x 17 x 17
-        x = self.Mixed_7a(x)
-        # N x 1280 x 8 x 8
-        x = self.Mixed_7b(x)
-        # N x 2048 x 8 x 8
-        x = self.Mixed_7c(x)
-        # N x 2048 x 8 x 8
-        # Adaptive average pooling
-        x = self.avgpool(x)
-        # N x 2048 x 1 x 1
-        x = self.dropout(x)
-        # N x 2048 x 1 x 1
 
-        # print(x.shape)
+        x = self.Mixed_7a(x)
+        print("After Mixed_7a: ", x.shape)
+
+        x = self.Mixed_7b(x)
+        print("After Mixed_7b: ", x.shape)
+
+        x = self.Mixed_7c(x)
+        print("After Mixed_7c: ", x.shape)
+
+        x = self.avgpool(x)
+        print("After avgpool: ", x.shape)
+
+        x = self.dropout(x)
+        print("After dropout: ", x.shape)
+
         x = torch.flatten(x, 1)
-        # N x 2048
+        print("After flatten: ", x.shape)
+
         x = self.fc(x)
-        # N x 1000 (num_classes)
+        print("After fc: ", x.shape)
+
         return x, aux
 
     @torch.jit.unused

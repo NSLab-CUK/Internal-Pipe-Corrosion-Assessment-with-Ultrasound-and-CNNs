@@ -10,28 +10,22 @@ class AlexNet(nn.Module):
         super().__init__()
 
         self.feature = nn.Sequential(
+            #input channel: 1, output channel: 96, stride=4, kernel_size=11
             nn.Conv2d(1, 96, stride=4, kernel_size=11),
-            nn.ReLU(),
+            # kernel_size=3 max pooling layer
             nn.MaxPool2d(3, stride=2),
+            #
             nn.Conv2d(96, 256, padding=2, kernel_size=5),
-            nn.ReLU(),
             nn.MaxPool2d(2, stride=2),
             nn.Conv2d(256, 384, padding=1, kernel_size=3),
-            nn.ReLU(),
             nn.Conv2d(384, 384, padding=1, kernel_size=3),
-            nn.ReLU(),
             nn.Conv2d(384, 256, padding=1, kernel_size=3),
-            nn.ReLU(),
             nn.MaxPool2d(3, stride=2)
         )
 
         self.classifier = nn.Sequential(
-            nn.Linear(5376, 3840), # This value might need to be adjusted based on input size and feature extractor output
-            nn.ReLU(),
-            nn.Dropout(0.5),
+            nn.Linear(157440, 3840),
             nn.Linear(3840, 3840),
-            nn.ReLU(),
-            nn.Dropout(0.5),
             nn.Linear(3840, num_class)
         )
 
@@ -39,6 +33,7 @@ class AlexNet(nn.Module):
         x = self.feature(x)
         x = x.view(x.shape[0], -1)
         x = self.classifier(x)
+
         return x
 
 
