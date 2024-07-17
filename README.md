@@ -7,6 +7,10 @@ The codes include components for data handling, model development, preprocessing
 
 ### Components
 
+-   **Data**:
+
+    -   `data/`: Directory containing the original ultrasound data.
+
 -   **Data Handling**:
 
     -   `data.py`: Functions for loading datasets.
